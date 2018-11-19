@@ -3,7 +3,8 @@ import os
 import tracemalloc
 import random
 
-def print_simple_trace(snapshot, key_type='lineno', limit=3):
+
+def print_simple_trace(snapshot, key_type='lineno', limit=100):
     snapshot = snapshot.filter_traces((
         tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
         tracemalloc.Filter(False, "<unknown>"),
@@ -29,6 +30,16 @@ def print_simple_trace(snapshot, key_type='lineno', limit=3):
     print("Total allocated size: %.1f KiB" % (total / 1024))
 
 
+def get_total_mem_used(snapshot, key_type='lineno'):
+    snapshot = snapshot.filter_traces((
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+        tracemalloc.Filter(False, "<unknown>"),
+    ))
+    top_stats = snapshot.statistics(key_type)
+    total = sum(stat.size for stat in top_stats)
+    return total / 1024
+
+
 def bubble_sort(alist):
     for passnum in range(len(alist) - 1, 0, -1):
         for i in range(passnum):
@@ -36,6 +47,7 @@ def bubble_sort(alist):
                 temp = alist[i]
                 alist[i] = alist[i + 1]
                 alist[i + 1] = temp
+
 
 def unsorted_list(length, min, max):
     unsorted = []
